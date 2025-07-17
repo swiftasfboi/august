@@ -1,119 +1,183 @@
-if _G.YoshidaaSpawnerBuilt then return end
-_G.YoshidaaSpawnerBuilt = true
-
-local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/ataturk123/GardenSpawner/refs/heads/main/Spawner.lua"))()
-
-local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
--- GUI
-local gui = Instance.new("ScreenGui", CoreGui)
-gui.Name = "YoshidaaSpawnerGUI"
-gui.ResetOnSpawn = false
+-- Remove old GUI if exists
+pcall(function() game.CoreGui:FindFirstChild("SwiftHubUI"):Destroy() end)
 
-local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0, 340, 0, 320)
-main.Position = UDim2.new(0.5, -170, 0.5, -160)
-main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-main.BackgroundTransparency = 0.15
-main.BorderSizePixel = 0
-main.Active = true
-main.Draggable = true
+-- ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "SwiftHubUI"
+screenGui.Parent = game.CoreGui
+screenGui.ResetOnSpawn = false
 
-Instance.new("UICorner", main).CornerRadius = UDim.new(0, 16)
+-- Loading Frame
+local loadingFrame = Instance.new("Frame")
+loadingFrame.Size = UDim2.new(0, 300, 0, 120)
+loadingFrame.Position = UDim2.new(0.5, -150, 0.5, -60)
+loadingFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+loadingFrame.BorderSizePixel = 0
+loadingFrame.Parent = screenGui
 
-local shadow = Instance.new("ImageLabel", main)
-shadow.AnchorPoint = Vector2.new(0.5, 0.5)
-shadow.Position = UDim2.new(0.5, 0, 0.5, 5)
-shadow.Size = UDim2.new(1, 40, 1, 40)
-shadow.BackgroundTransparency = 1
-shadow.Image = "rbxassetid://1316045217"
-shadow.ImageColor3 = Color3.fromRGB(0, 255, 128)
-shadow.ImageTransparency = 0.9
-shadow.ScaleType = Enum.ScaleType.Slice
-shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+local loadingText = Instance.new("TextLabel")
+loadingText.Size = UDim2.new(1, 0, 0, 50)
+loadingText.Position = UDim2.new(0, 0, 0, 10)
+loadingText.BackgroundTransparency = 1
+loadingText.Text = "SwiftHUB"
+loadingText.TextColor3 = Color3.new(1, 1, 1)
+loadingText.Font = Enum.Font.SourceSansBold
+loadingText.TextScaled = true
+loadingText.Parent = loadingFrame
 
--- Title Bar
-local title = Instance.new("TextLabel", main)
-title.Size = UDim2.new(1, -50, 0, 45)
-title.Position = UDim2.new(0, 10, 0, 0)
-title.Text = " Yoshidaa Hub"
-title.TextColor3 = Color3.fromRGB(0, 255, 128)
-title.Font = Enum.Font.GothamBlack
-title.TextSize = 22
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.BackgroundTransparency = 1
+local progressBarBg = Instance.new("Frame")
+progressBarBg.Size = UDim2.new(0.9, 0, 0, 20)
+progressBarBg.Position = UDim2.new(0.05, 0, 1, -40)
+progressBarBg.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+progressBarBg.BorderSizePixel = 0
+progressBarBg.Parent = loadingFrame
 
--- Minimize Button
-local minimizeBtn = Instance.new("TextButton", main)
-minimizeBtn.Size = UDim2.new(0, 30, 0, 30)
-minimizeBtn.Position = UDim2.new(1, -40, 0, 8)
-minimizeBtn.Text = "-"
-minimizeBtn.Font = Enum.Font.GothamBold
-minimizeBtn.TextSize = 20
-minimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-minimizeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Instance.new("UICorner", minimizeBtn).CornerRadius = UDim.new(0, 8)
+local progressBar = Instance.new("Frame")
+progressBar.Size = UDim2.new(0, 0, 1, 0)
+progressBar.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+progressBar.BorderSizePixel = 0
+progressBar.Parent = progressBarBg
 
--- Body Holder
-local body = Instance.new("Frame", main)
-body.Name = "Body"
-body.Size = UDim2.new(1, 0, 1, -45)
-body.Position = UDim2.new(0, 0, 0, 45)
-body.BackgroundTransparency = 1
+local tween = TweenService:Create(progressBar, TweenInfo.new(10, Enum.EasingStyle.Linear), {
+	Size = UDim2.new(1, 0, 1, 0)
+})
+tween:Play()
+tween.Completed:Wait()
+loadingFrame:Destroy()
 
--- Button Creator
-local function createButton(text, posY, callback)
-	local btn = Instance.new("TextButton", body)
-	btn.Size = UDim2.new(1, -40, 0, 36)
-	btn.Position = UDim2.new(0, 20, 0, posY)
-	btn.Text = text
-	btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	btn.Font = Enum.Font.Gotham
-	btn.TextSize = 15
-	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+-- === Main Menu ===
+local menuFrame = Instance.new("Frame")
+menuFrame.Size = UDim2.new(0, 200, 0, 200)
+menuFrame.Position = UDim2.new(0.5, -100, 0.5, -100)
+menuFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+menuFrame.BorderSizePixel = 0
+menuFrame.Active = true
+menuFrame.Draggable = true
+menuFrame.Parent = screenGui
 
-	btn.MouseEnter:Connect(function()
-		btn.BackgroundColor3 = Color3.fromRGB(0, 255, 128)
-		btn.TextColor3 = Color3.fromRGB(0, 0, 0)
-	end)
-	btn.MouseLeave:Connect(function()
-		btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	end)
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+title.Text = "Auto Gifting Pets"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.SourceSansBold
+title.TextScaled = true
+title.Parent = menuFrame
 
-	btn.MouseButton1Click:Connect(callback)
-	return btn
+local dropdownLabel = Instance.new("TextLabel")
+dropdownLabel.Size = UDim2.new(0.8, 0, 0, 20)
+dropdownLabel.Position = UDim2.new(0.1, 0, 0.25, 0)
+dropdownLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+dropdownLabel.Text = "Select Player"
+dropdownLabel.TextColor3 = Color3.new(1, 1, 1)
+dropdownLabel.Font = Enum.Font.SourceSans
+dropdownLabel.TextScaled = true
+dropdownLabel.Parent = menuFrame
+
+local dropdownMenu = Instance.new("Frame")
+dropdownMenu.Size = UDim2.new(0.8, 0, 0, 60)
+dropdownMenu.Position = UDim2.new(0.1, 0, 0.4, 0)
+dropdownMenu.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+dropdownMenu.Visible = true
+dropdownMenu.Parent = menuFrame
+
+local selectedPlayer = nil
+
+local stealButton = Instance.new("TextButton")
+stealButton.Size = UDim2.new(0.8, 0, 0, 30)
+stealButton.Position = UDim2.new(0.1, 0, 0.85, 0)
+stealButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+stealButton.Text = "Steal Pets"
+stealButton.TextColor3 = Color3.new(1, 1, 1)
+stealButton.Font = Enum.Font.SourceSansBold
+stealButton.TextScaled = true
+stealButton.Visible = false
+stealButton.Parent = menuFrame
+
+-- Update player list
+local function updatePlayerList()
+	dropdownMenu:ClearAllChildren()
+	local y = 0
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if plr ~= player then
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1, 0, 0, 20)
+			btn.Position = UDim2.new(0, 0, 0, y)
+			btn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+			btn.Text = plr.Name
+			btn.TextColor3 = Color3.new(1, 1, 1)
+			btn.Font = Enum.Font.SourceSans
+			btn.TextScaled = true
+			btn.Parent = dropdownMenu
+
+			btn.MouseButton1Click:Connect(function()
+				selectedPlayer = plr
+				dropdownLabel.Text = "To: " .. plr.Name
+				stealButton.Visible = true
+			end)
+
+			y = y + 20
+		end
+	end
 end
 
--- Buttons
-createButton("🐾 Spawn Pet (Raccoon)", 15, function()
-	Spawner.SpawnPet("Raccoon", 1, 2)
+updatePlayerList()
+Players.PlayerAdded:Connect(updatePlayerList)
+Players.PlayerRemoving:Connect(updatePlayerList)
+
+-- Steal Button Logic
+stealButton.MouseButton1Click:Connect(function()
+	if selectedPlayer then
+		print("Attempting to steal pets from: " .. selectedPlayer.Name)
+
+		local stealingLabel = Instance.new("TextLabel")
+		stealingLabel.Size = UDim2.new(1, 0, 0, 20)
+		stealingLabel.Position = UDim2.new(0, 0, 1, -55)
+		stealingLabel.BackgroundTransparency = 1
+		stealingLabel.Text = "Stealing in progress..."
+		stealingLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+		stealingLabel.TextScaled = true
+		stealingLabel.Font = Enum.Font.SourceSansItalic
+		stealingLabel.Parent = menuFrame
+
+		local progressBg = Instance.new("Frame")
+		progressBg.Size = UDim2.new(0.8, 0, 0, 10)
+		progressBg.Position = UDim2.new(0.1, 0, 1, -35)
+		progressBg.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+		progressBg.BorderSizePixel = 0
+		progressBg.Parent = menuFrame
+
+		local progressFill = Instance.new("Frame")
+		progressFill.Size = UDim2.new(0, 0, 1, 0)
+		progressFill.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+		progressFill.BorderSizePixel = 0
+		progressFill.Parent = progressBg
+
+		stealButton.Visible = false
+
+		local tween = TweenService:Create(progressFill, TweenInfo.new(10, Enum.EasingStyle.Linear), {
+			Size = UDim2.new(1, 0, 1, 0)
+		})
+		tween:Play()
+		tween.Completed:Wait()
+
+		print("Successfully stolen pets. Rejoin to refresh inventory.")
+		stealingLabel.Text = "✔ Successfully stolen pets."
+		stealingLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
+	end
 end)
 
-createButton("🌱 Spawn Seed (Candy Blossom)", 60, function()
-	Spawner.SpawnSeed("Candy Blossom")
-end)
-
-createButton("🥚 Spawn Egg (Night Egg)", 105, function()
-	Spawner.SpawnEgg("Night Egg")
-end)
-
-createButton("🌻 Spin (Sunflower)", 150, function()
-	Spawner.Spin("Sunflower")
-end)
-
-createButton("", 195, function()
-	Spawner.Load()
-end)
-
--- Minimize Logic
-local isMinimized = false
-minimizeBtn.MouseButton1Click:Connect(function()
-	isMinimized = not isMinimized
-	body.Visible = not isMinimized
-	minimizeBtn.Text = isMinimized and "+" or "-"
-	main.Size = isMinimized and UDim2.new(0, 340, 0, 60) or UDim2.new(0, 340, 0, 320)
-end)
+-- Credit Text
+local creditLabel = Instance.new("TextLabel")
+creditLabel.Size = UDim2.new(1, 0, 0, 15)
+creditLabel.Position = UDim2.new(0, 0, 1, -15)
+creditLabel.BackgroundTransparency = 1
+creditLabel.Text = "Created By SwiftHUB"
+creditLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+creditLabel.TextScaled = true
+creditLabel.Font = Enum.Font.SourceSansItalic
+creditLabel.Parent = menuFrame
